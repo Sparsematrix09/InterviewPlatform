@@ -1,5 +1,5 @@
 import { use } from "react";
-import { chatClient } from "../lib/stream";
+import { chatClient } from "../lib/stream.js";
 
 export async function getStreamToken(req, res) {
     try {
