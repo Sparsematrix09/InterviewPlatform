@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { ClerkProvider } from '@clerk/clerk-react'
-import { BrowserRouter } from 'react-router'
+import { BrowserRouter } from 'react-router-dom' // CHANGE THIS LINE
 import {
   QueryClient,
   QueryClientProvider,
@@ -19,14 +19,13 @@ if (!PUBLISHABLE_KEY) {
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')).render(
-
   <StrictMode>
     <BrowserRouter>
-    <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
         <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-        <App />
+          <App />
         </ClerkProvider>
-    </QueryClientProvider>  
+      </QueryClientProvider>  
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 )

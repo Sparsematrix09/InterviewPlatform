@@ -76,3 +76,26 @@
   box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.8);
   animation: twinkle 3s ease-in-out infinite;
 }
+
+/* Ensure resize handles are visible */
+[data-panel-resize-handle-id] {
+  position: relative;
+}
+
+[data-panel-resize-handle-id]:hover {
+  background-color: #10b981 !important;
+}
+
+/* Make handles more visible during drag */
+[data-panel-resize-handle-id][data-resize-handle-state="drag"] {
+  background-color: #059669 !important;
+}
+
+/* Custom handle styling */
+.custom-resize-handle {
+  transition: background-color 0.2s;
+}
+
+.custom-resize-handle:hover {
+  background-color: #10b981;
+}
