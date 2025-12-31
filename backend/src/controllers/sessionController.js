@@ -43,13 +43,33 @@ export async function createSession(req, res) {
 
 export async function getActiveSessions(_, res) {
   try {
-    const sessions = await Session.find({ status: "active" })
+    console.log("=== BACKEND DEBUG: getActiveSessions ===");
+    console.log("Querying for status: 'Ongoing'");
+    
+    // Test different queries
+    const allSessions = await Session.find({}).limit(5);
+    console.log("All sessions (first 5):", allSessions.map(s => ({
+      id: s._id,
+      problem: s.problem,
+      status: s.status,
+      host: s.host
+    })));
+
+    const ongoingSessions = await Session.find({ status: "Ongoing" });
+    console.log("Sessions with status 'Ongoing':", ongoingSessions.length);
+    
+    // Check if sessions have host populated
+    const sessionsWithPopulate = await Session.find({ status: "Ongoing" })
       .populate("host", "name profileImage email clerkId")
       .populate("participant", "name profileImage email clerkId")
       .sort({ createdAt: -1 })
       .limit(20);
 
-    res.status(200).json({ sessions });
+    console.log("Final result count:", sessionsWithPopulate.length);
+    console.log("First session (if any):", sessionsWithPopulate[0]);
+    console.log("=== END DEBUG ===");
+
+    res.status(200).json({ sessions: sessionsWithPopulate });
   } catch (error) {
     console.log("Error in getActiveSessions controller:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
@@ -58,16 +78,25 @@ export async function getActiveSessions(_, res) {
 
 export async function getMyRecentSessions(req, res) {
   try {
+    console.log("=== BACKEND DEBUG: getMyRecentSessions ===");
+    console.log("User from request:", req.user);
+    console.log("User ID:", req.user?._id);
+    console.log("User clerkId:", req.user?.clerkId);
+    
     const userId = req.user._id;
 
-    // get sessions where user is either host or participant
+    // Get sessions where user is either host or participant
     const sessions = await Session.find({
-      status: "completed",
       $or: [{ host: userId }, { participant: userId }],
     })
+      .populate("host", "name profileImage email clerkId")
+      .populate("participant", "name profileImage email clerkId")
       .sort({ createdAt: -1 })
       .limit(20);
 
+    console.log(`Found ${sessions.length} sessions for user`);
+    console.log("=== END DEBUG ===");
+    
     res.status(200).json({ sessions });
   } catch (error) {
     console.log("Error in getMyRecentSessions controller:", error.message);
@@ -102,7 +131,8 @@ export async function joinSession(req, res) {
 
     if (!session) return res.status(404).json({ message: "Session not found" });
 
-    if (session.status !== "active") {
+    // FIXED: Changed from "active" to "Ongoing"
+    if (session.status !== "Ongoing") {
       return res.status(400).json({ message: "Cannot join a completed session" });
     }
 
@@ -141,7 +171,7 @@ export async function endSession(req, res) {
     }
 
     // check if session is already completed
-    if (session.status === "completed") {
+    if (session.status === "Completed") {
       return res.status(400).json({ message: "Session is already completed" });
     }
 
@@ -153,7 +183,7 @@ export async function endSession(req, res) {
     const channel = chatClient.channel("messaging", session.callId);
     await channel.delete();
 
-    session.status = "completed";
+    session.status = "Completed";
     await session.save();
 
     res.status(200).json({ session, message: "Session ended successfully" });

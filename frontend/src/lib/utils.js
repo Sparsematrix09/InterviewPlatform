@@ -1,13 +1,16 @@
-// lib/utils.js
+// In lib/utils.js, ensure you have:
 export function getDifficultyBadgeClass(difficulty) {
-  switch (difficulty.toLowerCase()) {
-    case "easy":
-      return "text-emerald-400 border-emerald-500/30 bg-emerald-900/20";
-    case "medium":
-      return "text-yellow-400 border-yellow-500/30 bg-yellow-900/20";
-    case "hard":
-      return "text-red-400 border-red-500/30 bg-red-900/20";
+  if (!difficulty) return 'bg-gray-500 text-gray-100';
+  
+  const lowerDiff = difficulty.toLowerCase();
+  switch (lowerDiff) {
+    case 'easy':
+      return 'bg-green-500/20 text-green-400 border border-green-500/30';
+    case 'medium':
+      return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
+    case 'hard':
+      return 'bg-red-500/20 text-red-400 border border-red-500/30';
     default:
-      return "text-gray-400 border-gray-500/30 bg-gray-900/20";
+      return 'bg-gray-500/20 text-gray-400 border border-gray-500/30';
   }
 }
